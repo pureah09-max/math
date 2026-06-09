@@ -689,52 +689,30 @@ n = 표본 크기 (출구조사 인원)
         </div>
       </div>
 
-      <!-- 준비 2: 신뢰도와 구간 너비 -->
+      <!-- 준비 2: 두 학생 발언 판단 -->
       <div class="card" style="border-left: 3px solid #2E75B6;">
-        <div class="card-label" style="color:#2E75B6">준비 2 — 신뢰도를 높이면 구간은?</div>
-        <h3>같은 표본, 다른 신뢰도</h3>
-        <p>p̂ = 0.54, n = 400으로 신뢰구간을 구했다.</p>
-        <div style="background:var(--gray-50);border-radius:var(--radius-md);padding:10px 14px;font-family:var(--mono);font-size:13px;margin:10px 0;line-height:2">
-          95% 신뢰구간: 0.54 ± 1.96 × 0.025 = [0.491, 0.589]<br>
-          99% 신뢰구간: 0.54 ± 2.58 × 0.025 = [0.475, 0.605]
+        <div class="card-label" style="color:#2E75B6">준비 2 — 다음 중 옳은 설명을 한 학생은?</div>
+        <h3>모비율 p에 대한 신뢰도 95%의 추정을 여러 번 반복할 때, 표본의 크기 n, 표본비율 p̂, 신뢰구간의 길이에 대해 설명한 것이다.</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">
+          <div style="background:#E6F1FB;border:0.5px solid #B5D4F4;border-radius:var(--radius-md);padding:14px 16px;font-size:13px;line-height:1.8;color:#0C447C">
+            <div style="font-weight:500;margin-bottom:8px">🙋 서하</div>
+            p̂의 값이 같을 때, 표본의 크기 n이 클수록 신뢰구간의 길이는 <strong>길어져.</strong>
+          </div>
+          <div style="background:#FAEEDA;border:0.5px solid #FAC775;border-radius:var(--radius-md);padding:14px 16px;font-size:13px;line-height:1.8;color:#633806">
+            <div style="font-weight:500;margin-bottom:8px">🙋 지호</div>
+            표본의 크기 n이 일정하면 p̂ = 1/2일 때 신뢰구간의 길이는 <strong>가장 길어.</strong>
+          </div>
         </div>
-        <p>99% 신뢰구간은 95% 신뢰구간을 포함하는가?</p>
         <div class="choice-row">
-          <button class="choice-btn" onclick="checkDisc('d2','항상 포함한다','항상 포함한다')">항상 포함한다</button>
-          <button class="choice-btn" onclick="checkDisc('d2','포함하지 않는다','항상 포함한다')">포함하지 않는다</button>
-          <button class="choice-btn" onclick="checkDisc('d2','경우에 따라 다르다','항상 포함한다')">경우에 따라 다르다</button>
+          <button class="choice-btn" onclick="checkDisc('d2','서하만 옳다','지호만 옳다')">서하만 옳다</button>
+          <button class="choice-btn" onclick="checkDisc('d2','지호만 옳다','지호만 옳다')">지호만 옳다</button>
+          <button class="choice-btn" onclick="checkDisc('d2','둘 다 옳다','지호만 옳다')">둘 다 옳다</button>
+          <button class="choice-btn" onclick="checkDisc('d2','둘 다 틀렸다','지호만 옳다')">둘 다 틀렸다</button>
         </div>
         <div class="act-feedback" id="afb-d2"></div>
         <div style="margin-top:12px;padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.7">
-          💬 <strong>핵심:</strong> 같은 표본이면 p̂가 동일하므로 구간의 중심이 같다. 신뢰도가 높을수록 Z값이 커지고 → 오차한계가 커져 → 구간이 넓어진다. 따라서 β &gt; α이면 β% 신뢰구간은 항상 α% 신뢰구간을 포함한다.
-        </div>
-      </div>
-
-      <!-- 준비 3: 다른 표본, 다른 크기 -->
-      <div class="card" style="border-left: 3px solid #2E75B6;">
-        <div class="card-label" style="color:#2E75B6">준비 3 — 표본이 다를 때는?</div>
-        <h3>n₁ &lt; n₂이면 n₁ 구간이 항상 n₂ 구간을 포함할까?</h3>
-        <p>두 방송사가 서로 다른 사람들을 조사했다.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
-          <div style="background:var(--gray-50);border-radius:var(--radius-md);padding:12px 14px;font-size:13px;line-height:1.8">
-            <strong>방송사 A (n₁=100)</strong><br>
-            p̂₁ = 0.50<br>
-            95% 구간: [0.402, 0.598]
-          </div>
-          <div style="background:var(--gray-50);border-radius:var(--radius-md);padding:12px 14px;font-size:13px;line-height:1.8">
-            <strong>방송사 B (n₂=400)</strong><br>
-            p̂₂ = 0.51<br>
-            95% 구간: [0.461, 0.559]
-          </div>
-        </div>
-        <p>방송사 A의 구간이 방송사 B의 구간을 포함하는가?</p>
-        <div class="choice-row">
-          <button class="choice-btn" onclick="checkDisc('d3','포함한다','포함한다')">포함한다</button>
-          <button class="choice-btn" onclick="checkDisc('d3','포함하지 않는다','포함한다')">포함하지 않는다</button>
-        </div>
-        <div class="act-feedback" id="afb-d3"></div>
-        <div style="margin-top:12px;padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.7">
-          💬 <strong>이번엔 포함하지만…</strong> p̂₂가 0.58이었다면? → 방송사 B 구간: [0.532, 0.628] → 방송사 A 구간 [0.402, 0.598]이 포함하지 못한다. n₁ &lt; n₂라도 <strong>표본이 다르면 p̂가 달라질 수 있어</strong> 항상 포함한다고 보장할 수 없다.
+          💬 <strong>서하가 틀린 이유:</strong> 신뢰구간 길이 = 2 × 1.96 × √(p̂(1−p̂)/n) 에서 n이 클수록 √n이 커져 길이가 <em>짧아집니다</em>.<br>
+          💬 <strong>지호가 옳은 이유:</strong> p̂(1−p̂)은 p̂ = 0.5일 때 0.25로 최대 → 신뢰구간 길이도 최대. p̂가 0.5에서 멀어질수록 길이는 짧아집니다.
         </div>
       </div>
 
