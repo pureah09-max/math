@@ -710,7 +710,7 @@ n = 표본 크기 (출구조사 인원)
           <button class="choice-btn" onclick="checkDisc('d2','둘 다 틀렸다','지호만 옳다')">둘 다 틀렸다</button>
         </div>
         <div class="act-feedback" id="afb-d2"></div>
-        <div style="margin-top:12px;padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.7">
+        <div id="exp-d2" style="display:none;margin-top:12px;padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.7">
           💬 <strong>서하가 틀린 이유:</strong> 신뢰구간 길이 = 2 × 1.96 × √(p̂(1−p̂)/n) 에서 n이 클수록 √n이 커져 길이가 <em>짧아집니다</em>.<br>
           💬 <strong>지호가 옳은 이유:</strong> p̂(1−p̂)은 p̂ = 0.5일 때 0.25로 최대 → 신뢰구간 길이도 최대. p̂가 0.5에서 멀어질수록 길이는 짧아집니다.
         </div>
@@ -899,14 +899,29 @@ function calcUpdate() {
 function checkDisc(id, chosen, correct) {
   const fb = document.getElementById('afb-' + id);
   const btns = fb.previousElementSibling.querySelectorAll('.choice-btn');
-  btns.forEach(b => b.disabled = true);
   const isOk = chosen === correct;
-  btns.forEach(b => {
-    if (b.textContent.trim() === correct) b.classList.add('correct');
-    else if (b.textContent.trim() === chosen && !isOk) b.classList.add('wrong');
-  });
-  fb.className = 'act-feedback show ' + (isOk ? 'fb-ok' : 'fb-no');
-  fb.textContent = isOk ? '✓ 맞습니다! 아래 해설을 읽어보세요.' : '✗ 다시 생각해보세요. 아래 힌트를 참고하세요.';
+
+  if (isOk) {
+    btns.forEach(function(b) {
+      b.disabled = true;
+      if (b.textContent.trim() === correct) b.classList.add('correct');
+    });
+    fb.className = 'act-feedback show fb-ok';
+    fb.textContent = '✓ 맞습니다! 아래 해설을 읽어보세요.';
+    // d2 전용: 정답 시 해설 공개
+    var expEl = document.getElementById('exp-' + id);
+    if (expEl) expEl.style.display = 'block';
+  } else {
+    const wrongBtn = Array.from(btns).find(function(b) { return b.textContent.trim() === chosen; });
+    if (wrongBtn) {
+      wrongBtn.classList.add('wrong');
+      wrongBtn.disabled = true;
+      setTimeout(function() { wrongBtn.classList.remove('wrong'); wrongBtn.disabled = false; }, 1200);
+    }
+    fb.className = 'act-feedback show fb-no';
+    fb.textContent = '✗ 틀렸습니다. 다시 선택해보세요.';
+    setTimeout(function() { fb.className = 'act-feedback'; fb.textContent = ''; }, 1200);
+  }
 }
 
 function buildActivity() {
@@ -931,37 +946,68 @@ function buildActivity() {
 }
 
 function checkAct(i, chosen, correct) {
-  const btns = document.querySelectorAll(`#ac-${i} .choice-btn`);
-  btns.forEach(b => b.disabled = true);
+  const btns = document.querySelectorAll('#ac-' + i + ' .choice-btn');
   const isOk = correct.includes(chosen.split(' ')[0]);
-  btns.forEach(b => {
-    if (b.textContent.trim() === chosen) b.classList.add(isOk ? 'correct' : 'wrong');
-    if (!isOk && correct.includes(b.textContent.split(' ')[0])) b.classList.add('correct');
-  });
-  const fb = document.getElementById(`afb-${i}`);
-  fb.className = 'act-feedback show ' + (isOk ? 'fb-ok' : 'fb-no');
-  fb.textContent = isOk ? '✓ 정확합니다! ' + correct + ' 판정입니다.' : '✗ 다시 확인해보세요. 신뢰구간이 0.5를 포함하는지 보세요.';
+  const fb = document.getElementById('afb-' + i);
+  if (isOk) {
+    btns.forEach(function(b) {
+      b.disabled = true;
+      if (correct.includes(b.textContent.split(' ')[0])) b.classList.add('correct');
+    });
+    fb.className = 'act-feedback show fb-ok';
+    fb.textContent = '✓ 정확합니다! ' + correct + ' 판정입니다.';
+  } else {
+    const wrongBtn = Array.from(btns).find(function(b) { return b.textContent.trim() === chosen; });
+    if (wrongBtn) {
+      wrongBtn.classList.add('wrong');
+      wrongBtn.disabled = true;
+      setTimeout(function() { wrongBtn.classList.remove('wrong'); wrongBtn.disabled = false; }, 1200);
+    }
+    fb.className = 'act-feedback show fb-no';
+    fb.textContent = '✗ 틀렸습니다. 신뢰구간이 0.5를 포함하는지 다시 확인해보세요.';
+    setTimeout(function() { fb.className = 'act-feedback'; fb.textContent = ''; }, 1200);
+  }
 }
 
 function buildQuiz() {
   const el = document.getElementById('quiz-area');
-  el.innerHTML = quizzes.map((q, qi) => `
-    <div class="quiz-card" id="qc-${qi}">
-      <div class="quiz-num">문제 ${qi + 1}</div>
-      <div class="quiz-q">${q.q}</div>
-      ${q.opts.map((o, oi) => `<div class="quiz-opt" onclick="checkQ(${qi},${oi})">${o}</div>`).join('')}
-      <div class="quiz-fb" id="qfb-${qi}">${q.fb}</div>
-    </div>`).join('');
+  el.innerHTML = quizzes.map(function(q, qi) {
+    return '<div class="quiz-card" id="qc-' + qi + '">' +
+      '<div class="quiz-num">문제 ' + (qi + 1) + '</div>' +
+      '<div class="quiz-q">' + q.q + '</div>' +
+      q.opts.map(function(o, oi) {
+        return '<div class="quiz-opt" onclick="checkQ(' + qi + ',' + oi + ')">' + o + '</div>';
+      }).join('') +
+      '<div class="quiz-fb" id="qfb-' + qi + '" style="display:none"></div>' +
+    '</div>';
+  }).join('');
 }
 
 function checkQ(qi, chosen) {
-  const card = document.getElementById(`qc-${qi}`);
+  const card = document.getElementById('qc-' + qi);
   const opts = card.querySelectorAll('.quiz-opt');
-  opts.forEach(o => o.style.pointerEvents = 'none');
-  opts[quizzes[qi].ans].classList.add('correct');
-  if (chosen !== quizzes[qi].ans) opts[chosen].classList.add('wrong');
-  const fb = document.getElementById(`qfb-${qi}`);
-  fb.className = 'quiz-fb show ' + (chosen === quizzes[qi].ans ? 'ok' : 'no');
+  const correct = quizzes[qi].ans;
+  const isOk = chosen === correct;
+  const fb = document.getElementById('qfb-' + qi);
+  if (isOk) {
+    opts.forEach(function(o) { o.style.pointerEvents = 'none'; });
+    opts[correct].classList.add('correct');
+    fb.style.display = 'block';
+    fb.className = 'quiz-fb show ok';
+    fb.innerHTML = '✓ 정답!  ' + quizzes[qi].fb;
+  } else {
+    const wrongOpt = opts[chosen];
+    wrongOpt.classList.add('wrong');
+    wrongOpt.style.pointerEvents = 'none';
+    setTimeout(function() {
+      wrongOpt.classList.remove('wrong');
+      wrongOpt.style.pointerEvents = '';
+    }, 1200);
+    fb.style.display = 'block';
+    fb.className = 'quiz-fb show no';
+    fb.textContent = '✗ 틀렸습니다. 다시 선택해보세요.';
+    setTimeout(function() { fb.style.display = 'none'; }, 1200);
+  }
 }
 
 // AI WIDGET BUILDER
