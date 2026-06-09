@@ -411,34 +411,49 @@ n = 표본 크기 (출구조사 인원)
       <div class="card">
         <div class="card-label">데이터 탐색</div>
         <h2>5개 지역 출구조사 결과</h2>
-        <p>세 가지 시나리오를 비교하세요. 경우 2·3은 지역별로 A유력·경합·B유력이 섞여 있습니다. 지역별 판정을 먼저 예측한 뒤, 5개 지역을 합산하면 최종 판정이 어떻게 달라지는지 확인해보세요.</p>
+        <p>지지율(%)만 보고 판정을 예측해보세요. 예상과 다른 결과가 나올 수 있습니다!</p>
       </div>
 
       <div class="tab-bar">
-        <button class="tab active" onclick="showScenario('sc1')">경우 1</button>
-        <button class="tab" onclick="showScenario('sc2')">경우 2</button>
-        <button class="tab" onclick="showScenario('sc3')">경우 3</button>
+        <button class="tab active" onclick="showScenario('sc1')">경우 1 — 판정 먼저 예측하기</button>
+        <button class="tab" onclick="showScenario('sc2')">경우 2 — 신뢰구간으로 확인하기</button>
       </div>
 
       <div class="tab-panel active" id="sc-sc1">
+        <div class="card" style="background:var(--amber-50);border-color:var(--amber-100)">
+          <div class="card-label" style="color:var(--amber-600)">활동 안내</div>
+          <p style="color:var(--amber-800)">각 선거구의 <strong>n과 지지율만</strong> 보고 판정을 예측하세요. 5개 모두 확인한 뒤 아래 버튼으로 신뢰구간을 확인하세요.</p>
+        </div>
         <div class="region-grid" id="rg-sc1"></div>
+        <div style="margin-top:16px;text-align:center">
+          <button id="reveal-all-ci-btn" onclick="revealAllCI()" style="padding:12px 28px;background:var(--blue-600);color:#fff;border:none;border-radius:var(--radius-md);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;">
+            📊 5개 선거구 신뢰구간 모두 보기
+          </button>
+        </div>
+        <div id="sc1-ci-area" style="display:none;margin-top:16px">
+          <div class="card" style="background:var(--blue-50);border-color:var(--blue-100)">
+            <div class="card-label" style="color:var(--blue-600)">신뢰구간 공개!</div>
+            <p style="color:var(--blue-800)">예측이 맞았나요? 지지율이 높아도 n이 작으면 경합이, 지지율이 낮아도 n이 크면 유력이 나올 수 있습니다.</p>
+          </div>
+          <div class="region-grid" id="rg-sc1-ci"></div>
+        </div>
       </div>
+
       <div class="tab-panel" id="sc-sc2">
+        <div class="card" style="background:var(--blue-50);border-color:var(--blue-100)">
+          <div class="card-label" style="color:var(--blue-600)">활동 안내</div>
+          <p style="color:var(--blue-800)">신뢰구간을 보고 판정을 확인하세요. 지지율만으로 예측한 결과와 비교해보세요.</p>
+        </div>
         <div class="region-grid" id="rg-sc2"></div>
-        <div id="summary-sc2" style="margin-top:14px"></div>
-      </div>
-      <div class="tab-panel" id="sc-sc3">
-        <div class="region-grid" id="rg-sc3"></div>
-        <div id="summary-sc3" style="margin-top:14px"></div>
       </div>
 
       <div class="card" style="margin-top:14px">
         <div class="card-label">생각해보기</div>
-        <p>경우 2와 경우 3은 모두 지역별로 결과가 섞여 있습니다. 그런데 왜 합산 판정은 달라질까요? 표본 크기(n)가 어떤 역할을 하는지 주목해보세요.</p>
+        <p>지지율이 높은데 경합이 나온 선거구는 어디인가요? 지지율이 낮은데 유력이 나온 선거구는? 두 경우의 공통점은 무엇일까요?</p>
       </div>
 
       <div id="ai-1" class="ai-section"></div>
-      <script>buildAI('ai-1', '출구조사에서 표본 크기가 클수록 신뢰구간이 좁아지는 이유를 수식으로 설명해줘', ['표본 크기가 2배가 되면 오차한계는?', '95% 신뢰구간과 99% 신뢰구간의 차이는?', '경합 vs 유력 판단 기준을 더 자세히 설명해줘'])</script>
+      <script>buildAI('ai-1', '출구조사에서 표본 크기가 클수록 신뢰구간이 좁아지는 이유를 수식으로 설명해줘', ['표본 크기가 2배가 되면 오차한계는?', '높은 지지율인데 경합이 나오는 이유는?', '낮은 지지율인데 유력이 나오는 이유는?'])</script>
     </div>
 
     <!-- STEP 2: 계산기 -->
@@ -744,25 +759,18 @@ function startApp(withAI) {
 }
 
 const scenarioA = [
-  { region: '가선거구', n: 800,  pA: 0.57 },
-  { region: '나선거구', n: 600,  pA: 0.59 },
-  { region: '다선거구', n: 1000, pA: 0.55 },
-  { region: '라선거구', n: 500,  pA: 0.58 },
-  { region: '마선거구', n: 750,  pA: 0.56 },
+  { region: '가선거구', n: 100,  pA: 0.58 },
+  { region: '나선거구', n: 900,  pA: 0.54 },
+  { region: '다선거구', n: 600,  pA: 0.45 },
+  { region: '라선거구', n: 370,  pA: 0.55 },
+  { region: '마선거구', n: 400,  pA: 0.55 },
 ];
 const scenarioB = [
-  { region: '가선거구', n: 150,  pA: 0.57 },
-  { region: '나선거구', n: 1200, pA: 0.53 },
-  { region: '다선거구', n: 700,  pA: 0.46 },
-  { region: '라선거구', n: 400,  pA: 0.54 },
-  { region: '마선거구', n: 1000, pA: 0.56 },
-];
-const scenarioC = [
-  { region: '가선거구', n: 100,  pA: 0.58 },
-  { region: '나선거구', n: 200,  pA: 0.49 },
-  { region: '다선거구', n: 900,  pA: 0.45 },
-  { region: '라선거구', n: 250,  pA: 0.53 },
-  { region: '마선거구', n: 350,  pA: 0.55 },
+  { region: '가선거구', n: 90,   pA: 0.60 },
+  { region: '나선거구', n: 2500, pA: 0.52 },
+  { region: '다선거구', n: 800,  pA: 0.44 },
+  { region: '라선거구', n: 200,  pA: 0.49 },
+  { region: '마선거구', n: 150,  pA: 0.57 },
 ];
 const activityData = [
   { region: '가선거구', n: 150,  pA: 0.57 },
@@ -830,10 +838,41 @@ function regionCardHTML(d) {
   </div>`;
 }
 
+// 경우1 전용: 신뢰구간 숨기고 판정만 확인
+function regionCardNoCI(d) {
+  const ci = calcCI(d.pA, d.n);
+  const v = getVerdict(ci.lo, ci.hi);
+  const pB = 1 - d.pA;
+  const vc = v.cls === '유력' ? 'v-a' : v.cls === 'b' ? 'v-b' : 'v-tie';
+  const cardId = 'rc-' + (regionCardIdCounter++);
+  return `<div class="region-card">
+    <div class="region-name">📍 ${d.region} <span class="region-n">n = ${d.n.toLocaleString()}명</span></div>
+    <div class="bar-row">
+      <div class="bar-label-row"><span>A 후보</span><span>${pct(d.pA)}</span></div>
+      <div class="bar-track"><div class="bar-fill-a" style="width:${d.pA*100}%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label-row"><span>B 후보</span><span>${pct(pB)}</span></div>
+      <div class="bar-track"><div class="bar-fill-b" style="width:${pB*100}%"></div></div>
+    </div>
+    <div style="margin-top:10px">
+      <button class="reveal-btn" id="btn-${cardId}" onclick="revealVerdict('${cardId}','${vc}','${v.text.replace(/'/g,'')}')">판정 확인하기 👁</button>
+      <span class="verdict-pill ${vc}" id="pill-${cardId}" style="display:none">${v.text}</span>
+    </div>
+  </div>`;
+}
+
 function revealVerdict(cardId, vc, text) {
   document.getElementById('btn-' + cardId).style.display = 'none';
   const pill = document.getElementById('pill-' + cardId);
   pill.style.display = 'inline-flex';
+}
+
+function revealAllCI() {
+  document.getElementById('reveal-all-ci-btn').style.display = 'none';
+  const area = document.getElementById('sc1-ci-area');
+  area.style.display = 'block';
+  document.getElementById('rg-sc1-ci').innerHTML = scenarioA.map(regionCardHTML).join('');
 }
 
 function aggregateSummaryHTML(scenario) {
@@ -859,18 +898,17 @@ function aggregateSummaryHTML(scenario) {
 }
 
 function renderRegions() {
-  document.getElementById('rg-sc1').innerHTML = scenarioA.map(regionCardHTML).join('');
+  regionCardIdCounter = 0;
+  document.getElementById('rg-sc1').innerHTML = scenarioA.map(regionCardNoCI).join('');
   document.getElementById('rg-sc2').innerHTML = scenarioB.map(regionCardHTML).join('');
-  document.getElementById('rg-sc3').innerHTML = scenarioC.map(regionCardHTML).join('');
-  document.getElementById('summary-sc2').innerHTML = aggregateSummaryHTML(scenarioB);
-  document.getElementById('summary-sc3').innerHTML = aggregateSummaryHTML(scenarioC);
 }
 
 function showScenario(sc) {
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (sc==='sc1'&&i===0)||(sc==='sc2'&&i===1)||(sc==='sc3'&&i===2)));
-  ['sc1','sc2','sc3'].forEach(s => {
-    document.getElementById('sc-'+s).classList.toggle('active', s===sc);
+  document.querySelectorAll('.tab').forEach(function(t, i) {
+    t.classList.toggle('active', (sc==='sc1'&&i===0)||(sc==='sc2'&&i===1));
   });
+  document.getElementById('sc-sc1').classList.toggle('active', sc==='sc1');
+  document.getElementById('sc-sc2').classList.toggle('active', sc==='sc2');
 }
 
 function calcUpdate() {
